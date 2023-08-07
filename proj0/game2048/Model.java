@@ -110,15 +110,69 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
+        board.setViewingPerspective(side);
+
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        for (int col = 0; col < board.size(); col++) {
+            int mergedRow = -1;
+            for (int row = board.size() - 1; row >= 0; row--) {
+                Tile tile = board.tile(col, row);
+                // if tile is empty, don't tilt it up
+                if (tile == null) {
+                    continue;
+                }
 
+                // if tile has value, tilt it up
+                int rowOfFirstTileAbove = getRowOfFirstTileAbove(col, row);
+
+                if (rowOfFirstTileAbove < board.size()) { // if tile above
+                    Tile tileAbove = board.tile(col, rowOfFirstTileAbove);
+                    if (mergedRow == rowOfFirstTileAbove) { // if tile above has already been merged move tile below it
+                        moveTileBelowTileAbove(col, rowOfFirstTileAbove, tile);
+                        changed = true;
+                    } else if (tile.value() == tileAbove.value()) { // if tiles have same value, merge them
+                        mergedRow = rowOfFirstTileAbove;
+                        mergeTileWithTileAbove(col, rowOfFirstTileAbove, tile);
+                        changed = true;
+                    } else if (row != rowOfFirstTileAbove - 1) { // if tiles don't have same value and there's a gap between them, move tile below tile above
+                        moveTileBelowTileAbove(col, rowOfFirstTileAbove, tile);
+                        changed = true;
+                    }
+                } else { // if no tile above
+                    if (row != board.size() - 1) { // if tile not in top row, move tile to top row
+                        moveTileBelowTileAbove(col, rowOfFirstTileAbove, tile);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    /* returns row of first tile above tile with given col and row */
+    public int getRowOfFirstTileAbove(int col, int row) {
+        int rowOfFirstTileAbove = row + 1;
+        while (rowOfFirstTileAbove < board.size() && board.tile(col, rowOfFirstTileAbove) == null) {
+            rowOfFirstTileAbove += 1;
+        }
+        return rowOfFirstTileAbove;
+    }
+
+    public void moveTileBelowTileAbove(int col, int rowOfFirstTileAbove, Tile tile) {
+        board.move(col, rowOfFirstTileAbove - 1, tile);
+    }
+
+    public void mergeTileWithTileAbove(int col, int rowOfFirstTileAbove, Tile tile) {
+        board.move(col, rowOfFirstTileAbove, tile);
+        score += tile.value() * 2;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -137,7 +191,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int boardSize = b.size();
+        for (int col = 0; col < boardSize; col++) {
+            for (int row = 0; row < boardSize; row++) {
+                if (b.tile(col, row) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +208,16 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int boardSize = b.size();
+        for (int col = 0; col < boardSize; col++) {
+            for (int row = 0; row < boardSize; row++) {
+                if (b.tile(col, row) != null) {
+                    if (b.tile(col, row).value() == MAX_PIECE) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -158,11 +228,48 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        int boardSize = b.size();
+        for (int col = 0; col < boardSize; col++) {
+            for (int row = 0; row < boardSize; row++) {
+                if (b.tile(col, row) != null) {
+                    // check tile to the right
+                    if (tileEqualsTileToRight(b, col, row)) {
+                        return true;
+                    }
+
+                    // check tile below
+                    if (tileEqualsTileBelow(b, col, row)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return emptySpaceExists(b);
+    }
+
+    /* return true if tile at column and row equals the tile to its right */
+    public static boolean tileEqualsTileToRight(Board b, int col, int row) {
+        if (col + 1 < b.size()) {
+            if (b.tile(col + 1, row) != null) {
+                int currentTile = b.tile(col, row).value();
+                int tileToRight = b.tile(col + 1, row).value();
+                return currentTile == tileToRight;
+            }
+        }
         return false;
     }
 
-
+    /* return true if tile at column and row equals the tile below */
+    public static boolean tileEqualsTileBelow(Board b, int col, int row) {
+        if (row + 1 < b.size()) {
+            if (b.tile(col, row + 1) != null) {
+                int currentTile = b.tile(col, row).value();
+                int tileBelow = b.tile(col, row + 1).value();
+                return currentTile == tileBelow;
+            }
+        }
+        return false;
+    }
     @Override
      /** Returns the model as a string, used for debugging. */
     public String toString() {

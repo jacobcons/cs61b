@@ -18,10 +18,10 @@ public class ArrayDequeTest {
         ArrayDeque<String> lld1 = new ArrayDeque<String>();
 
         assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
-		lld1.addFirst("front");
+        lld1.addFirst("front");
 
 		// The && operator is the same as "and" in Python.
-		// It's a binary operator that returns true if both arguments true, and false otherwise.
+        // It's a binary operator that returns true if both arguments true, and false otherwise.
         assertEquals(1, lld1.size());
         assertFalse("lld1 should now contain 1 item", lld1.isEmpty());
 
@@ -103,8 +103,7 @@ public class ArrayDequeTest {
 
     @Test
     /* Add large number of elements to deque; check if order is correct. */
-    public void bigLLDequeTest() {
-
+    public void bigALDequeTest() {
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
         for (int i = 0; i < 1000000; i++) {
             lld1.addLast(i);
@@ -152,12 +151,12 @@ public class ArrayDequeTest {
         int N = 5000;
         for (int i = 0; i < N; i += 1) {
             int operationNumber = StdRandom.uniform(0, 5);
-            if (operationNumber == 0 && myImplementation.size() < 8) {
+            if (operationNumber == 0) {
                 // addLast
                 int randVal = StdRandom.uniform(0, 100);
                 myImplementation.addLast(randVal);
                 javaImplementation.addLast(randVal);
-            } else if (operationNumber == 1 && myImplementation.size() < 8) {
+            } else if (operationNumber == 1) {
                 // addFirst
                 int randVal = StdRandom.uniform(0, 100);
                 myImplementation.addFirst(randVal);
@@ -179,5 +178,60 @@ public class ArrayDequeTest {
                 assertEquals(myFirst, javaFirst);
             }
         }
+    }
+
+    @Test
+    public void resizeBiggerTest() {
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        for (int i = 1; i <= 23; i++) {
+            l.addLast(i);
+        }
+    }
+
+    @Test
+    public void resizeSmallerTest() {
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        for (int i = 1; i <= 20; i++) {
+            l.addLast(i);
+        }
+        for (int i = 1; i <= 18; i++) {
+            l.removeLast();
+        }
+    }
+
+    @Test
+    public void iteratorTest() {
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        l.addLast(1);
+        l.addLast(2);
+        l.addLast(3);
+        int i = 1;
+        for (int x: l) {
+            assertEquals(x, i);
+            i += 1;
+        }
+    }
+
+    @Test
+    public void equalsTest() {
+        ArrayDeque<Integer> l = new ArrayDeque<>();
+        l.addLast(1);
+        l.addLast(2);
+        l.addLast(3);
+        ArrayDeque<Integer> m = new ArrayDeque<>();
+        m.addLast(1);
+        m.addLast(2);
+        m.addLast(3);
+
+        // same contents => true
+        assertEquals(l, m);
+        // different lengths => false
+        m.removeLast();
+        assertNotEquals(l, m);
+
+        // different contents => false
+        m.addLast(4);
+        assertNotEquals(l, m);
+
     }
 }

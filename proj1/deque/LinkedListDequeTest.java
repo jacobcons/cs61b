@@ -186,4 +186,39 @@ public class LinkedListDequeTest {
             }
         }
     }
+
+    @Test
+    public void iteratorTest() {
+        LinkedListDeque<Integer> l = new LinkedListDeque<>();
+        l.addLast(1);
+        l.addLast(2);
+        l.addLast(3);
+        int i = 1;
+        for (int x: l) {
+            assertEquals(x, i);
+            i += 1;
+        }
+    }
+
+    @Test
+    public void equalsTest() {
+        LinkedListDeque<Integer> l = new LinkedListDeque<>();
+        l.addLast(1);
+        l.addLast(2);
+        l.addLast(3);
+        LinkedListDeque<Integer> m = new LinkedListDeque<>();
+        m.addLast(1);
+        m.addLast(2);
+        m.addLast(3);
+
+        // same contents => true
+        assertEquals(l, m);
+        // different lengths => false
+        m.removeLast();
+        assertNotEquals(l, m);
+
+        // different contents => false
+        m.addLast(4);
+        assertNotEquals(l, m);
+    }
 }

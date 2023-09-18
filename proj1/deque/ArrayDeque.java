@@ -1,6 +1,7 @@
 package deque;
+import java.util.Iterator;
 
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private static final int INITIAL_SIZE = 8;
     private T[] items;
     private int size;
@@ -15,20 +16,34 @@ public class ArrayDeque<T> {
         nextLast = 1;
     }
 
+    private void resize(int capacity) {
+        T[] temp = (T[]) new Object[capacity];
+        int counter = 0;
+        for (int i = nextIndex(nextFirst); counter < size; i = nextIndex(i)) {
+            temp[counter] = items[i];
+            counter++;
+        }
+        items = temp;
+        nextFirst = items.length - 1;
+        nextLast = size;
+    }
+
     public void addFirst(T item) {
+        if (size == items.length) {
+            resize(size * 2);
+        }
         items[nextFirst] = item;
-        nextFirst = Math.floorMod(nextFirst - 1, items.length);
+        nextFirst = prevIndex(nextFirst);
         size++;
     }
 
     public void addLast(T item) {
+        if (size == items.length) {
+            resize(size * 2);
+        }
         items[nextLast] = item;
-        nextLast = Math.floorMod(nextLast + 1, items.length);
+        nextLast = nextIndex(nextLast);
         size++;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     public int size() {
@@ -49,7 +64,13 @@ public class ArrayDeque<T> {
         if (isEmpty()) {
             return null;
         }
-        nextFirst = Math.floorMod(nextFirst + 1, items.length);
+
+        float usageRatio = (float) size / items.length;
+        if (usageRatio < 0.25) {
+            resize(items.length / 2);
+        }
+
+        nextFirst = nextIndex(nextFirst);
         T removedItem = items[nextFirst];
         items[nextFirst] = null;
         size--;
@@ -60,7 +81,13 @@ public class ArrayDeque<T> {
         if (isEmpty()) {
             return null;
         }
-        nextLast = Math.floorMod(nextLast - 1, items.length);
+
+        float usageRatio = (float) size / items.length;
+        if (usageRatio < 0.25) {
+            resize(items.length / 2);
+        }
+
+        nextLast = prevIndex(nextLast);
         T removedItem = items[nextLast];
         items[nextLast] = null;
         size--;
@@ -72,5 +99,47 @@ public class ArrayDeque<T> {
             return null;
         }
         return items[Math.floorMod(nextFirst + index + 1, items.length)];
+    }
+
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int pos;
+        public ArrayDequeIterator() {
+            pos = 0;
+        }
+        public boolean hasNext() {
+            return pos < size;
+        }
+        public T next() {
+            T returnItem = get(pos);
+            pos += 1;
+            return returnItem;
+        }
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof ArrayDeque other) {
+            if (this.size() != other.size()) {
+                return false;
+            }
+            for (int i = 0; i < this.size(); i++) {
+                if (this.get(i) != other.get(i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private int prevIndex(int index) {
+        return Math.floorMod(index - 1, items.length);
+    }
+
+    private int nextIndex(int index) {
+        return Math.floorMod(index + 1, items.length);
     }
 }

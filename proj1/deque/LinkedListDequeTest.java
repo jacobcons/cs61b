@@ -3,6 +3,7 @@ package deque;
 import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import java.util.Iterator;
 
 
 /** Performs some basic linked list tests. */
@@ -193,11 +194,16 @@ public class LinkedListDequeTest {
         l.addLast(1);
         l.addLast(2);
         l.addLast(3);
-        int i = 1;
-        for (int x: l) {
-            assertEquals(x, i);
-            i += 1;
+        Iterator<Integer> iterator = l.iterator();
+        for (int n = 1; n <= 3; n++) {
+            assertTrue(iterator.hasNext());
+            assertEquals(iterator.next(), (Integer) n);
         }
+        assertFalse(iterator.hasNext());
+
+        LinkedListDeque<Integer> empty = new LinkedListDeque<>();
+        Iterator<Integer> emptyIterator = empty.iterator();
+        assertFalse(emptyIterator.hasNext());
     }
 
     @Test

@@ -6,14 +6,14 @@ import edu.princeton.cs.algs4.StdDraw;
  * A client that uses the synthesizer package to replicate a plucked guitar string sound
  */
 public class GuitarHero {
-    public static final String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
+    public static final String KEYBOARD = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
 
-    public static final int noteCount = keyboard.length();
+    public static final int NOTE_COUNT = KEYBOARD.length();
 
     public static void main(String[] args) {
         /* create two guitar strings, for concert A and C */
-        GuitarString[] strings = new GuitarString[noteCount];
-        for (int i = 0; i < noteCount; i++) {
+        GuitarString[] strings = new GuitarString[NOTE_COUNT];
+        for (int i = 0; i < NOTE_COUNT; i++) {
             double frequency = 440 * Math.pow(2, (i - 24) / (double) 12);
             strings[i] = new GuitarString(frequency);
         }
@@ -23,7 +23,7 @@ public class GuitarHero {
             /* check if the user has typed a key; if so, process it */
             if (StdDraw.hasNextKeyTyped()) {
                 char key = StdDraw.nextKeyTyped();
-                int keyPos = keyboard.indexOf(key);
+                int keyPos = KEYBOARD.indexOf(key);
                 if (keyPos != -1) {
                     strings[keyPos].pluck();
                 }

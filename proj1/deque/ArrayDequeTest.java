@@ -233,5 +233,11 @@ public class ArrayDequeTest {
         m.addLast(4);
         assertNotEquals(l, m);
 
+        // test same array deque & linked list deque are equal
+        LinkedListDeque<Integer> l2 = new LinkedListDeque<>();
+        l2.addLast(1);
+        l2.addLast(2);
+        l2.addLast(3);
+        assertEquals(l, l2);
     }
 }
